@@ -37,6 +37,7 @@ android {
     }
     buildFeatures {
         compose = true
+        dataBinding  = true
     }
 }
 
@@ -51,7 +52,8 @@ dependencies {
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
     implementation(libs.androidx.constraintlayout)
-
+    implementation(libs.androidx.appcompat)
+    implementation(libs.kotlin.stdlib)
     testImplementation(libs.junit)
 
     androidTestImplementation(libs.androidx.junit)
@@ -66,5 +68,6 @@ dependencies {
     implementation(libs.retrofit)
     implementation(libs.retrofit.converter.gson)
     implementation(libs.kotlin.stdlib)
+
 
 }
