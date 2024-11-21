@@ -1,7 +1,5 @@
 package com.lcj.fd_v1
 
-import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.app.AppCompatActivity
 import android.Manifest
 import android.app.Activity
 import android.content.DialogInterface
@@ -15,17 +13,13 @@ import android.provider.Settings
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
-import java.io.IOException
-import java.time.ZoneId
-import java.time.ZonedDateTime
-import java.time.format.DateTimeFormatter
-import java.util.*
 import com.lcj.fd_v1.databinding.ActivityMainBinding
+import java.io.IOException
+import java.util.*
 
 class MainActivity : AppCompatActivity() {
     lateinit var binding : ActivityMainBinding
@@ -43,7 +37,7 @@ class MainActivity : AppCompatActivity() {
     lateinit var getGPSPermissionLauncher: ActivityResultLauncher<Intent>
 
     // 위도와 경도를 가져올 때 사용할 변수
-//    lateinit var locationProvider: LocationProvider
+    lateinit var locationProvider: LocationProvider
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -51,9 +45,9 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        checkAllPermissions() //1.권한허용처리
-//        updateUI()
-//        setRefreshButton()
+        checkAllPermissions() //권한허용처리
+        updateUI() //위도,경도값을 바탕으로 현재 주소와 현재 정보 업데이트
+        setRefreshButton() // 새로고침 버튼 정의
     }
 
 //==============================================================================================================
@@ -144,7 +138,7 @@ private fun showDialogForLocationServiceSetting() {
                 }
             }
             if (checkResult) { //결과값이 true이면,
-//                updateUI() // UI없데이트 함수 실행
+                updateUI() // UI없데이트 함수 실행
             } else { //결과값이 false 이면, 토스트메세지 실행하고, 앱 종료.
                 Toast.makeText(this@MainActivity, "퍼미션이 거부되었습니다. 앱을 다시 실행하여 퍼미션을 허용해주세요.", Toast.LENGTH_LONG).show()
                 finish() // 앱종료
@@ -154,44 +148,67 @@ private fun showDialogForLocationServiceSetting() {
 
     //==============================================================================================================
 
+    // 위도,경도값을 바탕으로 데이터 업데이트
+    private fun updateUI() {
 
-    private fun setRefreshButton() {
-        binding.btnRefresh.setOnClickListener {
-//            updateUI()
+        locationProvider = LocationProvider(this@MainActivity)
+
+        //위도, 경도 정보 호출
+        val latitude: Double? = locationProvider.getLocationLatitude()
+        val longitude: Double? = locationProvider.getLocationLongitude()
+
+        // 위도와 경도가 0값이 아닐경우
+        if (latitude != null && longitude != null) {
+
+            //위도, 경도로 주소정보 반환하는 함수 정의
+            val address = getCurrentAddress(latitude, longitude)
+
+            //주소가 null 이 아닐 경우 UI 업데이트
+            address?.let {
+                binding.tvLocationTitle.text = "${it.thoroughfare}" // 예시: 역삼 1동
+                binding.tvLocationSubtitle.text = "${it.countryName} ${it.adminArea}" // 예시 : 대한민국 서울특별시
+            }
+
+            //2. 현재 미세먼지 농도 가져오고 UI 업데이트
+//            getAirQualityData(latitude, longitude)
+
+        } else {
+            Toast.makeText(this@MainActivity, "위도, 경도 정보를 가져올 수 없었습니다. 새로고침을 눌러주세요.", Toast.LENGTH_LONG).show()
         }
     }
 
-    //==============================================================================================================
+    //---------------------------------------------------------------------------------------------
+    //위도경도 데이터로 주소값 변환하는 함수
+    fun getCurrentAddress(latitude: Double, longitude: Double): Address? {// Address : 주소정보 담고있는 객체
+        // Geocoder : 위도, 경도값과 주소값 매칭해줌.
+//        val geocoder = Geocoder(this, Locale.getDefault()) // 현재 기기의 언어세팅값 가져옴.
+        val geocoder = Geocoder(this, Locale.KOREA) // 한국어 설정
+        val addresses: List<Address>?
 
-//    private fun updateUI() {
-//        locationProvider = LocationProvider(this@MainActivity)
+        //Geocoder에서 주소리스트 받아옴.
+        addresses = try {
+        geocoder.getFromLocation(latitude, longitude, 7)
+        } catch (ioException: IOException) {
+            Toast.makeText(this, "지오코더 서비스 사용불가합니다.", Toast.LENGTH_LONG).show()
+            return null
+        } catch (illegalArgumentException: IllegalArgumentException) {
+            Toast.makeText(this, "잘못된 위도, 경도 입니다.", Toast.LENGTH_LONG).show()
+            return null
+        }
+
+        //에러는 아니지만 주소가 발견되지 않은 경우
+        if (addresses == null || addresses.size == 0) {
+            Toast.makeText(this, "주소가 발견되지 않았습니다.", Toast.LENGTH_LONG).show()
+            return null
+        }
+        
+        //주소리스트에서 첫번째값 반환
+        val address: Address = addresses[0]
+        return address
+    }
 //
-//        //위도와 경도 정보를 가져옵니다.
-//        val latitude: Double = locationProvider.getLocationLatitude()
-//        val longitude: Double = locationProvider.getLocationLongitude()
-//
-//        if (latitude != 0.0 || longitude != 0.0) {
-//
-//            //1. 현재 위치를 가져오고 UI 업데이트
-//            //현재 위치를 가져오기
-//            val address = getCurrentAddress(latitude, longitude) //주소가 null 이 아닐 경우 UI 업데이트
-//            address?.let {
-//                binding.tvLocationTitle.text = "${it.thoroughfare}" // 예시: 역삼 1동
-//                binding.tvLocationSubtitle.text = "${it.countryName} ${it.adminArea}" // 예시 : 대한민국 서울특별시
-//            }
-//
-//            //2. 현재 미세먼지 농도 가져오고 UI 업데이트
-//            getAirQualityData(latitude, longitude)
-//
-//        } else {
-//            Toast.makeText(this@MainActivity, "위도, 경도 정보를 가져올 수 없었습니다. 새로고침을 눌러주세요.", Toast.LENGTH_LONG).show()
-//        }
-//    }
-//
-//    /**
-//     * @desc 레트로핏 클래스를 이용하여 미세먼지 오염 정보를 가져옵니다.
-//     * */
-//    private fun getAirQualityData(latitude: Double, longitude: Double) { // 레트로핏 객체를 이용하면 AirQualityService 인터페이스 구현체를 가져올 수 있습니다.
+//    // 레트로핏 객체를 이용하면 AirQualityService 인터페이스 구현체를 가져올 수 있습니다.
+//    private fun getAirQualityData(latitude: Double, longitude: Double) {
 //        val retrofitAPI = RetrofitConnection.getInstance().create(AirQualityService::class.java)
 //
 //        retrofitAPI.getAirQualityData(latitude.toString(), longitude.toString(), "f8f5a711-7da9-4118-a875-304ffded8cb8")
@@ -214,9 +231,7 @@ private fun showDialogForLocationServiceSetting() {
 //            })
 //    }
 //
-//    /**
-//     * @desc 가져온 데이터 정보를 바탕으로 화면을 업데이트한다.
-//     * */
+//
 //    private fun updateAirUI(airQualityData: AirQualityResponse) {
 //        val pollutionData = airQualityData.data.current.pollution
 //
@@ -252,35 +267,13 @@ private fun showDialogForLocationServiceSetting() {
 //            }
 //        }
 //    }
-//
-//    /**
-//     * @desc 위도와 경도를 기준으로 실제 주소를 가져온다.
-//     * */
-//    fun getCurrentAddress(latitude: Double, longitude: Double): Address? {
-//        val geocoder = Geocoder(this, Locale.getDefault()) // Address 객체는 주소와 관련된 여러 정보를 가지고 있습니다. android.location.Address 패키지 참고.
-//        val addresses: List<Address>?
-//
-//        addresses = try { //Geocoder 객체를 이용하여 위도와 경도로부터 리스트를 가져옵니다.
-//            geocoder.getFromLocation(latitude, longitude, 7)
-//        } catch (ioException: IOException) {
-//            Toast.makeText(this, "지오코더 서비스 사용불가합니다.", Toast.LENGTH_LONG).show()
-//            return null
-//        } catch (illegalArgumentException: IllegalArgumentException) {
-//            Toast.makeText(this, "잘못된 위도, 경도 입니다.", Toast.LENGTH_LONG).show()
-//            return null
-//        }
-//
-//        //에러는 아니지만 주소가 발견되지 않은 경우
-//        if (addresses == null || addresses.size == 0) {
-//            Toast.makeText(this, "주소가 발견되지 않았습니다.", Toast.LENGTH_LONG).show()
-//            return null
-//        }
-//
-//        val address: Address = addresses[0]
-//
-//        return address
-//    }
-//
+
+    //==============================================================================================================
+    private fun setRefreshButton() {
+        binding.btnRefresh.setOnClickListener {
+            updateUI()
+        }
+    }
 
 
 }
