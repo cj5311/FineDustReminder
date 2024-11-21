@@ -67,10 +67,9 @@ class LocationProvider(val context: Context) {
                 if (gpsLocation != null && networkLocation != null) {
                     if (gpsLocation.accuracy > networkLocation.accuracy) {
                         location = gpsLocation
-                        return gpsLocation
                     } else {
-                        location = networkLocation
-                        return networkLocation
+//                        location = networkLocation
+                        location = gpsLocation // 가상기기 테스트용
                     }
                 } else { //위치정보가 하나만 존재할때 null 값이 아닌값을 location에 할당
                     if (gpsLocation != null) {
