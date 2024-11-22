@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">FD_v1</string>
+    <string name="app_btn_here">미세먼지 농도 측정</string>
+</resources>
