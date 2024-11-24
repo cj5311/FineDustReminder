@@ -24,6 +24,11 @@
             android:name="com.google.android.geo.API_KEY"
             android:value="@string/google_api" />
 
+        <meta-data
+            android:name="com.google.android.gms.ads.APPLICATION_ID"
+            android:value="@string/admop_sdk_api" />
+
+
         <activity
             android:name=".MainActivity"
             android:exported="true"

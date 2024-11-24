@@ -41,7 +41,7 @@ material = { group = "com.google.android.material", name = "material", version.r
 androidx-activity = { group = "androidx.activity", name = "activity", version.ref = "activity" }
 firebase-bom = {group = "com.google.firebase", name = "firebase-bom", version = "33.6.0"}
 firebase-analytics ={group = "com.google.firebase", name = "firebase-analytics"}
-
+servies-ads = {group="com.google.android.gms", name = "play-services-ads", version="23.5.0"}
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }

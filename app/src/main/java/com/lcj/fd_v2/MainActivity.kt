@@ -80,6 +80,14 @@ class MainActivity : AppCompatActivity() {
         setRefreshButton() // 새로고침 버튼 정의
         setFab()//지도보기 버튼 정의
 
+        setBannerAds()
+
+    }
+    
+    private fun setBannerAds(){
+        //광고 초기화
+        //광고 가져오기
+        //리스너
     }
 
 //==============================================================================================================

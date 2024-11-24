@@ -80,5 +80,5 @@ dependencies {
     //firebase
     implementation(libs.firebase.bom)
     implementation(libs.firebase.analytics)
-
+    implementation(libs.servies.ads)
 }
