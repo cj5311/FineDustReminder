@@ -39,6 +39,8 @@ google-maps={group = "com.google.android.gms", name = "play-services-maps", vers
 google-location={group = "com.google.android.gms", name = "play-services-location", version = "18.0.0"}
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 androidx-activity = { group = "androidx.activity", name = "activity", version.ref = "activity" }
+firebase-bom = {group = "com.google.firebase", name = "firebase-bom", version = "33.6.0"}
+firebase-analytics ={group = "com.google.firebase", name = "firebase-analytics"}
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
@@ -46,3 +48,4 @@ kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 #kotlin-kapt = { id = "org.jetbrains.kotlin.kapt", version = "1.8.+" } # 최신 1.8.x 유지
 #android-databinding = { id = "androidx.databinding", version= "8.1.+" }
+google-services = {id = "com.google.gms.google-services", version ="4.4.2" }

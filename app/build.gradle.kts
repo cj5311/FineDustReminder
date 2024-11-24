@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
 //    alias(libs.plugins.kotlin.kapt)
+    alias(libs.plugins.google.services)
 }
 
 android {
@@ -75,5 +76,9 @@ dependencies {
     // 구글맵 관련
     implementation(libs.google.maps)
     implementation(libs.google.location)
+
+    //firebase
+    implementation(libs.firebase.bom)
+    implementation(libs.firebase.analytics)
 
 }
