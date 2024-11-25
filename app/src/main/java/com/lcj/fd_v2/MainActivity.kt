@@ -103,7 +103,7 @@ class MainActivity : AppCompatActivity() {
     private  fun setInterstitialAds (){
         //광고로드, 콜백함수 통해 상태추적 기능 정의
         val adRequest = AdRequest.Builder().build()
-        InterstitialAd.load(this,"ca-app-pub-3940256099942544/1033173712", adRequest, object : InterstitialAdLoadCallback() {
+        InterstitialAd.load(this,getString(R.string.admop_banner_front_api), adRequest, object : InterstitialAdLoadCallback() {
             override fun onAdLoaded(p0: InterstitialAd) {
                 super.onAdLoaded(p0)
                 Log.d("ads log", "전면 광고가 로드되었습니다.")
