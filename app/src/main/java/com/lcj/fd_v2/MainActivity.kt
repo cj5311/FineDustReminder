@@ -94,10 +94,10 @@ class MainActivity : AppCompatActivity() {
         setBannerAds()
 
     }
-    // 앱외부로 나갔다가 다시 들어올때 수행되는 함수
+    // 다른 엑티비티에 갔다가 돌아왔을떄 실행되는 주기함수
     override fun onResume() {
         super.onResume()
-        setInterstitialAds()
+        setInterstitialAds() //페이지 이동후 돌아왔을때 광고로드가 재실행됨
     }
 
     private  fun setInterstitialAds (){
