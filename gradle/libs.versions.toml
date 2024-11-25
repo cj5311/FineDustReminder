@@ -27,7 +27,7 @@ androidx-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-toolin
 androidx-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest" }
 androidx-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
 androidx-material3 = { group = "androidx.compose.material3", name = "material3" }
-androidx-appcompat = { module = "androidx.appcompat:appcompat", version= "1.6.+" }
+androidx-appcompat = { module = "androidx.appcompat:appcompat", version= "1.6.0" }
 
 retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "kotlin" }
 retrofit-converter-gson = { module = "com.squareup.retrofit2:converter-gson", version.ref = "kotlin" }
@@ -40,8 +40,9 @@ google-location={group = "com.google.android.gms", name = "play-services-locatio
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 androidx-activity = { group = "androidx.activity", name = "activity", version.ref = "activity" }
 firebase-bom = {group = "com.google.firebase", name = "firebase-bom", version = "33.6.0"}
-firebase-analytics ={group = "com.google.firebase", name = "firebase-analytics"}
+firebase-analytics ={group = "com.google.firebase", name = "firebase-analytics",version="21.2.0"}
 servies-ads = {group="com.google.android.gms", name = "play-services-ads", version="23.5.0"}
+
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }

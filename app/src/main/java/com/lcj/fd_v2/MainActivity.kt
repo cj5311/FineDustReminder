@@ -20,6 +20,14 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import com.google.android.gms.ads.AdError
+import com.google.android.gms.ads.AdListener
+import com.google.android.gms.ads.AdRequest
+import com.google.android.gms.ads.FullScreenContentCallback
+import com.google.android.gms.ads.LoadAdError
+import com.google.android.gms.ads.MobileAds
+import com.google.android.gms.ads.interstitial.InterstitialAd
+import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback
 import com.lcj.fd_v2.databinding.ActivityMainBinding
 import com.lcj.fd_v2.retrofit.AirQualityResponse
 import com.lcj.fd_v2.retrofit.AirQualityService
@@ -35,6 +43,9 @@ import java.util.*
 
 class MainActivity : AppCompatActivity() {
     lateinit var binding : ActivityMainBinding
+
+    //전면 광고 (사이광고)
+    var mInterstitialAd : InterstitialAd? = null
 
     // 런타임 권한 요청시 필요한 코드
     private val PERMISSIONS_REQUEST_CODE = 100
@@ -69,7 +80,7 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         )
-
+    // 앱 시작시 실행되는 부분
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
@@ -83,11 +94,55 @@ class MainActivity : AppCompatActivity() {
         setBannerAds()
 
     }
-    
+    // 앱외부로 나갔다가 다시 들어올때 수행되는 함수
+    override fun onResume() {
+        super.onResume()
+        setInterstitialAds()
+    }
+
+    private  fun setInterstitialAds (){
+        //광고로드, 콜백함수 통해 상태추적 기능 정의
+        val adRequest = AdRequest.Builder().build()
+        InterstitialAd.load(this,"ca-app-pub-3940256099942544/1033173712", adRequest, object : InterstitialAdLoadCallback() {
+            override fun onAdLoaded(p0: InterstitialAd) {
+                super.onAdLoaded(p0)
+                Log.d("ads log", "전면 광고가 로드되었습니다.")
+                mInterstitialAd = p0
+            }
+
+            override fun onAdFailedToLoad(p0: LoadAdError) {
+                super.onAdFailedToLoad(p0)
+                Log.d("ads log", "전면 광고가 로드 실패했습니다. ${p0.responseInfo}")
+                mInterstitialAd = null
+            }
+        })
+
+    }
     private fun setBannerAds(){
-        //광고 초기화
-        //광고 가져오기
-        //리스너
+        MobileAds.initialize(this) // 광고 초기화
+        val adRequest = AdRequest.Builder().build() // 광고 호출
+        binding.adBannerBottom.loadAd(adRequest) // 광고 바인딩
+        binding.adBannerBottom.adListener = object : AdListener() { // 광고 리스너
+            override fun onAdLoaded() {
+                Log.d("ads log","배너 광고가 로드되었습니다.")
+            }
+
+            override fun onAdFailedToLoad(adError : LoadAdError) {
+                Log.d("ads log","배너 광고가 로드 실패했습니다. ${adError.responseInfo}")
+            }
+
+            override fun onAdOpened() {
+                Log.d("ads log","배너 광고를 열었습니다.") //전면에 광고가 오버레이 되었을 때
+            }
+
+            override fun onAdClicked() {
+                Log.d("ads log","배너 광고를 클릭했습니다.")
+            }
+
+            override fun onAdClosed() {
+                Log.d("ads log", "배너 광고를 닫았습니다.")
+            }
+        }
     }
 
 //==============================================================================================================
@@ -323,15 +378,53 @@ private fun showDialogForLocationServiceSetting() {
         }
     }
     //===========================================================================================================
-    // 지도보기 버튼 클릭시
-    private fun setFab(){
-        binding.fab.setOnClickListener{
-            // 페이지 이동 인텐트객체 생성
-            val intent = Intent(this, MapActivity::class.java)
-            intent.putExtra("currentLat", latitude) // 데이터 저장 
-            intent.putExtra("currentLng", longitude)
-            startMapActivityResult.launch(intent) // 인텐트객체에 담긴 정보로 정의한 런쳐 실행
+    // flotten 버튼 클릭시 --> 광고띄움 --> 광고 닫음 --> 지도페이지로 이동
+    private fun setFab() {
+            binding.fab.setOnClickListener { // fab 버튼 클릭시
+                if (mInterstitialAd != null) { // 광고가 있을시 --> 콜백함수 통해 동작제어
+                    mInterstitialAd!!.fullScreenContentCallback = object : FullScreenContentCallback() {
+
+                        // 광고가 닫혔을때 함수 실행
+                        override fun onAdDismissedFullScreenContent() {
+                            Log.d("ads log", "전면 광고가 닫혔습니다.")
+
+                            // 지도페이지 오픈 (기존코드)
+                            val intent = Intent(
+                                this@MainActivity,
+                                MapActivity::class.java
+                            ) //this -> this@MainActivity 로 수정
+                            intent.putExtra("currentLat", latitude)
+                            intent.putExtra("currentLng", longitude)
+                            startMapActivityResult.launch(intent)
+
+                        }
+
+                        // 광고가 안열렸을때 함수 실행
+                        override fun onAdFailedToShowFullScreenContent(p0: AdError) {
+                            super.onAdFailedToShowFullScreenContent(p0)
+                            Log.d("ads log", "전면 광고가 열리는 데 실패했습니다.")
+                        }
+
+                        // 광고가 열렸을때 함수 실행
+                        override fun onAdShowedFullScreenContent() {
+                            Log.d("ads log", "전면 광고가 성공적으로 열렸습니다.")
+                            mInterstitialAd = null // 광고객체 초기화
+                        }
+                    }
+                    mInterstitialAd!!.show(this) // 광고 보이기
+
+                } else {
+                    Log.d("InterstitialAd", "전면 광고가 로딩되지 않았습니다.")
+                    Toast.makeText(
+                        this@MainActivity,
+                        "잠시 후 다시 시도해주세요.",
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
+            }
         }
-    }
-    
+
+
+
+
 }
